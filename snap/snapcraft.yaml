@@ -14,8 +14,6 @@ parts:
     plugin: make
     make-parameters:
     - libpaddlefish.a
-    artifacts:
-    - libpaddlefish.a
     organize:
       libpaddlefish.a: lib/
     build-packages:
