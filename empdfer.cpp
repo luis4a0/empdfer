@@ -120,12 +120,13 @@ int main(int argc, char *argv[])
         argv[0] << " embeds jpeg files on a PDF document.\n"
         "usage: " << argv[0] << " options\nwhere options are zero or more of:\n"
         "-i, --input file   input image name\n"
-        "-x, --size-x mm    horizontal size of the last specified image in milimeters\n"
-        "-y, --size-y mm    vertical size of the last specified image in milimeters\n"
-        "-o, --output file  output file name\n"
+        "-x, --size-x mm    horizontal size of the last specified image\n"
+        "-y, --size-y mm    vertical size of the last specified image\n"
+        "-o, --output file  output file name (if `-` or omitted, use stdout)\n"
         "-px, --page-x mm   width of the output pages (default: " << page_x_mm << ")\n"
         "-py, --page-y mm   height of the output pages (default: " << page_y_mm << ")\n"
-        "-h, --help         show this message\n";
+        "-h, --help         show this message\n"
+        "Sizes are specified in millimeters\n";
 
       return -2;
     }
