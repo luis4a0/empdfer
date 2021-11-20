@@ -104,51 +104,50 @@ paddlefish::PagePtr create_page(const std::string& input_file, double page_x_mm,
 
 int main(int argc, char *argv[])
 {
-  std::string input_file, output_file;
-  double img_x_mm = -1., img_y_mm = -1.;
+  std::vector<std::string> input_files;
+  std::string output_file;
+  std::vector<double> img_x_mm, img_y_mm;
 
   for (auto i = 1; i < argc; ++i)
   {
     if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
     {
       std::cerr <<
-        argv[0] << " embeds a jpeg file on a single-page PDF document.\n"
+        argv[0] << " embeds jpeg files on a PDF document.\n"
         "usage: " << argv[0] << " options\nwhere options are zero or more of:\n"
-        "-i, --input input\tinput image name\n"
-        "-o, --output output\toutput image name\n"
-        "-x, --size-x mm\thorizontal size of the image in milimeters\n"
-        "-y, --size-y mm\tvertical size of the image in milimeters\n"
-        "-h, --help\tshow this message\n";
+        "-i, --input input    input image name\n"
+        "-x, --size-x mm      horizontal size of the last specified image in milimeters\n"
+        "-y, --size-y mm      vertical size of the last specified image in milimeters\n"
+        "-o, --output output  output image name\n"
+        "-h, --help           show this message\n";
 
       return -2;
     }
 
     if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--input"))
     {
-      input_file = std::string(argv[i + 1]);
-      ++i;
+      input_files.push_back(std::string(argv[++i]));
+      img_x_mm.push_back(-1.);
+      img_y_mm.push_back(-1.);
     }
 
     if (!strcmp(argv[i], "-o") || !strcmp(argv[i], "--output"))
     {
-      output_file = std::string(argv[i + 1]);
-      ++i;
+      output_file = std::string(argv[++i]);
     }
 
     if (!strcmp(argv[i], "-x") || !strcmp(argv[i], "--size-x"))
     {
-      img_x_mm = atof(argv[i + 1]);
-      ++i;
+      img_x_mm[img_x_mm.size() - 1] = atof(argv[++i]);
     }
 
     if (!strcmp(argv[i], "-y") || !strcmp(argv[i], "--size-y"))
     {
-      img_y_mm = atof(argv[i + 1]);
-      ++i;
+      img_y_mm[img_y_mm.size() - 1] = atof(argv[++i]);
     }
   }
 
-  if (input_file.empty() || output_file.empty())
+  if (input_files.empty() || output_file.empty())
   {
     std::cerr << "Not enough arguments, use \"" << argv[0] << " --help\"." << std::endl;
 
@@ -161,7 +160,8 @@ int main(int argc, char *argv[])
 
   paddlefish::DocumentPtr d(new paddlefish::Document());
 
-  d->push_back_page(create_page(input_file, page_x_mm, page_y_mm, img_x_mm, img_y_mm));
+  for (size_t i = 0; i < input_files.size(); ++i)
+      d->push_back_page(create_page(input_files[i], page_x_mm, page_y_mm, img_x_mm[i], img_y_mm[i]));
 
   std::ofstream f(output_file, std::ios_base::out|std::ios_base::binary);
   d->to_stream(f);
