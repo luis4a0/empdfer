@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (input_files.empty() || output_file.empty())
+  if (input_files.empty())
   {
     std::cerr << "Not enough arguments, use \"" << argv[0] << " --help\"." << std::endl;
 
@@ -173,11 +173,18 @@ int main(int argc, char *argv[])
   paddlefish::DocumentPtr d(new paddlefish::Document());
 
   for (size_t i = 0; i < input_files.size(); ++i)
-      d->push_back_page(create_page(input_files[i], page_x_mm, page_y_mm, img_x_mm[i], img_y_mm[i]));
+    d->push_back_page(create_page(input_files[i], page_x_mm, page_y_mm, img_x_mm[i], img_y_mm[i]));
 
-  std::ofstream f(output_file, std::ios_base::out|std::ios_base::binary);
-  d->to_stream(f);
-  f.close();
+  if (output_file.empty() || output_file == "-")
+  {
+    d->to_stream(std::cout);
+  }
+  else
+  {
+    std::ofstream f(output_file, std::ios_base::out|std::ios_base::binary);
+    d->to_stream(f);
+    f.close();
+  }
 
   return 0;
 }
