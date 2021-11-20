@@ -25,66 +25,10 @@
 
 #include <document.h>
 
-int main(int argc, char *argv[])
+paddlefish::PagePtr create_page(const std::string& input_file, double page_x_mm, double page_y_mm, double img_x_mm,
+                                double img_y_mm)
 {
-  std::string input_file, output_file;
-  double img_x_mm = -1., img_y_mm = -1.;
-
-  for (auto i = 1; i < argc; ++i)
-  {
-    if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
-    {
-      std::cerr <<
-        argv[0] << " embeds a jpeg file on a single-page PDF document.\n"
-        "usage: " << argv[0] << " options\nwhere options are zero or more of:\n"
-        "-i, --input input\tinput image name\n"
-        "-o, --output output\toutput image name\n"
-        "-x, --size-x mm\thorizontal size of the image in milimeters\n"
-        "-y, --size-y mm\tvertical size of the image in milimeters\n"
-        "-h, --help\tshow this message\n";
-
-      return -2;
-    }
-
-    if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--input"))
-    {
-      input_file = std::string(argv[i + 1]);
-      ++i;
-    }
-
-    if (!strcmp(argv[i], "-o") || !strcmp(argv[i], "--output"))
-    {
-      output_file = std::string(argv[i + 1]);
-      ++i;
-    }
-
-    if (!strcmp(argv[i], "-x") || !strcmp(argv[i], "--size-x"))
-    {
-      img_x_mm = atof(argv[i + 1]);
-      ++i;
-    }
-
-    if (!strcmp(argv[i], "-y") || !strcmp(argv[i], "--size-y"))
-    {
-      img_y_mm = atof(argv[i + 1]);
-      ++i;
-    }
-  }
-
-  if (input_file.empty() || output_file.empty())
-  {
-    std::cerr << "Not enough arguments, use \"" << argv[0] << " --help\"." << std::endl;
-
-    return -3;
-  }
-
-  paddlefish::DocumentPtr d(new paddlefish::Document());
-
   paddlefish::PagePtr p(new paddlefish::Page());
-
-  // TODO: read these parameters from the arguments.
-  double page_x_mm = 210.;
-  double page_y_mm = 297.;
 
   // Compute image size using libjpeg. we need libjpeg only for this, because
   // the image stream will be copied as-is by Paddlefish.
@@ -99,7 +43,7 @@ int main(int argc, char *argv[])
   {
     std::cerr << "can't open input file \"" << input_file << "\"" << std::endl;
 
-    return -1;
+    exit(-1);
   }
 
   jpeg_stdio_src(&cinfo, infile);
@@ -155,7 +99,69 @@ int main(int argc, char *argv[])
       break;
   }
 
-  d->push_back_page(p);
+  return p;
+}
+
+int main(int argc, char *argv[])
+{
+  std::string input_file, output_file;
+  double img_x_mm = -1., img_y_mm = -1.;
+
+  for (auto i = 1; i < argc; ++i)
+  {
+    if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
+    {
+      std::cerr <<
+        argv[0] << " embeds a jpeg file on a single-page PDF document.\n"
+        "usage: " << argv[0] << " options\nwhere options are zero or more of:\n"
+        "-i, --input input\tinput image name\n"
+        "-o, --output output\toutput image name\n"
+        "-x, --size-x mm\thorizontal size of the image in milimeters\n"
+        "-y, --size-y mm\tvertical size of the image in milimeters\n"
+        "-h, --help\tshow this message\n";
+
+      return -2;
+    }
+
+    if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--input"))
+    {
+      input_file = std::string(argv[i + 1]);
+      ++i;
+    }
+
+    if (!strcmp(argv[i], "-o") || !strcmp(argv[i], "--output"))
+    {
+      output_file = std::string(argv[i + 1]);
+      ++i;
+    }
+
+    if (!strcmp(argv[i], "-x") || !strcmp(argv[i], "--size-x"))
+    {
+      img_x_mm = atof(argv[i + 1]);
+      ++i;
+    }
+
+    if (!strcmp(argv[i], "-y") || !strcmp(argv[i], "--size-y"))
+    {
+      img_y_mm = atof(argv[i + 1]);
+      ++i;
+    }
+  }
+
+  if (input_file.empty() || output_file.empty())
+  {
+    std::cerr << "Not enough arguments, use \"" << argv[0] << " --help\"." << std::endl;
+
+    return -3;
+  }
+
+  // TODO: read these parameters from the arguments.
+  double page_x_mm = 210.;
+  double page_y_mm = 297.;
+
+  paddlefish::DocumentPtr d(new paddlefish::Document());
+
+  d->push_back_page(create_page(input_file, page_x_mm, page_y_mm, img_x_mm, img_y_mm));
 
   std::ofstream f(output_file, std::ios_base::out|std::ios_base::binary);
   d->to_stream(f);
