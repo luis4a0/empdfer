@@ -108,6 +108,10 @@ int main(int argc, char *argv[])
   std::string output_file;
   std::vector<double> img_x_mm, img_y_mm;
 
+  // Default page size.
+  double page_x_mm = 210.;
+  double page_y_mm = 297.;
+
   for (auto i = 1; i < argc; ++i)
   {
     if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
@@ -115,11 +119,13 @@ int main(int argc, char *argv[])
       std::cerr <<
         argv[0] << " embeds jpeg files on a PDF document.\n"
         "usage: " << argv[0] << " options\nwhere options are zero or more of:\n"
-        "-i, --input input    input image name\n"
-        "-x, --size-x mm      horizontal size of the last specified image in milimeters\n"
-        "-y, --size-y mm      vertical size of the last specified image in milimeters\n"
-        "-o, --output output  output image name\n"
-        "-h, --help           show this message\n";
+        "-i, --input file   input image name\n"
+        "-x, --size-x mm    horizontal size of the last specified image in milimeters\n"
+        "-y, --size-y mm    vertical size of the last specified image in milimeters\n"
+        "-o, --output file  output file name\n"
+        "-px, --page-x mm   width of the output pages (default: " << page_x_mm << ")\n"
+        "-py, --page-y mm   height of the output pages (default: " << page_y_mm << ")\n"
+        "-h, --help         show this message\n";
 
       return -2;
     }
@@ -145,6 +151,16 @@ int main(int argc, char *argv[])
     {
       img_y_mm[img_y_mm.size() - 1] = atof(argv[++i]);
     }
+
+    if (!strcmp(argv[i], "-px") || !strcmp(argv[i], "--page-x"))
+    {
+      page_x_mm = atof(argv[++i]);
+    }
+
+    if (!strcmp(argv[i], "-py") || !strcmp(argv[i], "--page-y"))
+    {
+      page_y_mm = atof(argv[++i]);
+    }
   }
 
   if (input_files.empty() || output_file.empty())
@@ -153,10 +169,6 @@ int main(int argc, char *argv[])
 
     return -3;
   }
-
-  // TODO: read these parameters from the arguments.
-  double page_x_mm = 210.;
-  double page_y_mm = 297.;
 
   paddlefish::DocumentPtr d(new paddlefish::Document());
 
