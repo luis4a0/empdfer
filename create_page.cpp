@@ -16,6 +16,7 @@
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "create_page.h"
+#include "jpeg.h"
 
 #include <cstring>
 #include <iostream>
@@ -24,13 +25,14 @@
 #include <jpeglib.h>
 #include <sstream>
 
-paddlefish::PagePtr create_page(const std::string& input_file, double page_x_mm, double page_y_mm, double img_x_mm,
-                                double img_y_mm)
+paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
+                                         double page_x_mm, double page_y_mm,
+                                         double img_x_mm, double img_y_mm,
+                                         int quality)
 {
   paddlefish::PagePtr p(new paddlefish::Page());
 
-  // Compute image size using libjpeg. we need libjpeg only for this, because
-  // the image stream will be copied as-is by Paddlefish.
+  // Compute image size using libjpeg.
   jpeg_decompress_struct cinfo;
   struct jpeg_error_mgr err;
 
@@ -79,12 +81,32 @@ paddlefish::PagePtr create_page(const std::string& input_file, double page_x_mm,
   std::cerr << "jpeg_color_space=" << cinfo.jpeg_color_space <<
     ", out_color_space=" << cinfo.out_color_space << std::endl;
 
-  // Add the jpeg image to the page. For this, try find which color space
-  // the image is in.
-  p->add_jpeg_image(input_file,
-                    cinfo.image_width, cinfo.image_height,
-                    MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm), MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
-                    cinfo.jpeg_color_space == JCS_GRAYSCALE ? COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
+  if (quality == -1)
+  {
+    // Add the jpeg image to the page. For this, try find which color space
+    // the image is in.
+      p->add_jpeg_image(input_file,
+                        cinfo.image_width, cinfo.image_height,
+                        MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm),
+                        MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
+                        cinfo.jpeg_color_space == JCS_GRAYSCALE ?
+                        COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
+  }
+  else
+  {
+    std::string compressed_file = input_file + "_compressed_" + std::to_string(quality);
+
+    empdfer::recompress_jpeg(input_file, compressed_file, quality);
+
+    // Add the resulting image
+    p->add_jpeg_image(compressed_file, cinfo.image_width, cinfo.image_height,
+                      MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm),
+                      MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
+                      cinfo.jpeg_color_space == JCS_GRAYSCALE ?
+                      COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
+
+    // TODO: Remember to remove the file after the PDF is created!
+  }
 
   return p;
 }

@@ -15,17 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EMPDFER_CREATE_PAGE_H
-#define EMPDFER_CREATE_PAGE_H
+#ifndef EMPDFER_JPEG_H
+#define EMPDFER_JPEG_H
 
 #include <string>
 
-#include <document.h>
-
 namespace empdfer {
 
-paddlefish::PagePtr create_page(const std::string&, double, double, double, double, int);
+void recompress_jpeg(const std::string&, const std::string&, int);
 
 } // namespace empdfer
 
-#endif // EMPDFER_CREATE_PAGE_H
+#endif // EMPDFER_JPEG_H

@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   std::vector<std::string> input_files;
   std::string output_file;
   std::vector<double> img_x_mm, img_y_mm;
+  int quality = -1;
 
   // Default page size.
   double page_x_mm = 210.;
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
         "-o, --output file  output file name (if `-` or omitted, use stdout)\n"
         "-px, --page-x mm   width of the output pages (default: " << page_x_mm << ")\n"
         "-py, --page-y mm   height of the output pages (default: " << page_y_mm << ")\n"
+        "-q, --quality int  quality of the output images (default: retain the input quality)\n"
         "-h, --help         show this message\n"
         "Sizes are specified in millimeters\n";
 
@@ -86,6 +88,11 @@ int main(int argc, char *argv[])
     {
       page_y_mm = atof(argv[++i]);
     }
+
+    if (!strcmp(argv[i], "-q") || !strcmp(argv[i], "--quality"))
+    {
+      quality = atoi(argv[++i]);
+    }
   }
 
   if (input_files.empty())
@@ -98,7 +105,8 @@ int main(int argc, char *argv[])
   paddlefish::DocumentPtr d(new paddlefish::Document());
 
   for (size_t i = 0; i < input_files.size(); ++i)
-    d->push_back_page(create_page(input_files[i], page_x_mm, page_y_mm, img_x_mm[i], img_y_mm[i]));
+    d->push_back_page(empdfer::create_page(input_files[i], page_x_mm, page_y_mm,
+                                           img_x_mm[i], img_y_mm[i], quality));
 
   if (output_file.empty() || output_file == "-")
   {
