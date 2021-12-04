@@ -81,22 +81,10 @@ paddlefish::PagePtr create_page(const std::string& input_file, double page_x_mm,
 
   // Add the jpeg image to the page. For this, try find which color space
   // the image is in.
-  switch (cinfo.jpeg_color_space)
-  {
-    case JCS_GRAYSCALE:
-      p->add_jpeg_image(input_file,
-                        cinfo.image_width, cinfo.image_height,
-                        MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm), MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
-                        COLORSPACE_DEVICEGRAY);
-      break;
-
-    default:
-      p->add_jpeg_image(input_file,
-                        cinfo.image_width, cinfo.image_height,
-                        MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm), MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
-                        COLORSPACE_DEVICERGB);
-      break;
-  }
+  p->add_jpeg_image(input_file,
+                    cinfo.image_width, cinfo.image_height,
+                    MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm), MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
+                    cinfo.jpeg_color_space == JCS_GRAYSCALE ? COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
 
   return p;
 }
