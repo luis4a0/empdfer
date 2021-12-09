@@ -20,6 +20,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 #include <jerror.h>
 #include <jpeglib.h>
@@ -94,7 +95,9 @@ paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
   }
   else
   {
-    std::string compressed_file = input_file + "_compressed_" + std::to_string(quality);
+    std::string compressed_file =
+      std::filesystem::temp_directory_path().string() + "/" + input_file +
+      "_compressed_" + std::to_string(quality);
 
     empdfer::recompress_jpeg(input_file, compressed_file, quality);
 
@@ -104,8 +107,6 @@ paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
                       MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
                       cinfo.jpeg_color_space == JCS_GRAYSCALE ?
                       COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
-
-    // TODO: Remember to remove the file after the PDF is created!
   }
 
   return p;

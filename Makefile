@@ -22,7 +22,7 @@ PDF_LIB=paddlefish
 PDF_LIB_PATH=../../paddlefish/build
 PDF_LIB_INCLUDE_PATH=../../paddlefish/build
 EXT_LIBS_DEFS=-DPADDLEFISH_USE_ZLIB
-CXXPARAMS=-g ${EXT_LIBS_DEFS} -Wall -pedantic -std=c++11 #-ansi
+CXXPARAMS=-g ${EXT_LIBS_DEFS} -Wall -pedantic -std=c++17 #-ansi
 OPTIMIZATION=-O2
 EXT_LIBS=-lm -lz
 
