@@ -20,10 +20,14 @@
 
 #include <string>
 
+#include <document.h>
+
 namespace empdfer {
 
 void recompress_jpeg(const std::string&, const std::string&, int);
 
+paddlefish::PagePtr jpeg_page(const std::string&, double, double, double,
+                              double, int);
 } // namespace empdfer
 
 #endif // EMPDFER_JPEG_H

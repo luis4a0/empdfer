@@ -15,17 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <iostream>
+#ifndef EMPDFER_FILE_TYPE_H
+#define EMPDFER_FILE_TYPE_H
 
-#include "create_page.h"
-#include "file_type.h"
-#include "jpeg.h"
+#include <string>
 
-paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
-                                         double page_x_mm, double page_y_mm,
-                                         double img_x_mm, double img_y_mm,
-                                         int quality)
+namespace empdfer {
+
+enum FileType
 {
-  return empdfer::jpeg_page(input_file, page_x_mm, page_y_mm, img_x_mm,
-                            img_y_mm, quality);
-}
+    JPEG,
+    UNKNOWN
+};
+
+FileType file_type(const std::string&);
+
+} // namespace empdfer
+
+#endif // EMPDFER_FILE_TYPE_H

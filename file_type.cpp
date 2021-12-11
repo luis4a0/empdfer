@@ -15,17 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <iostream>
+#include <algorithm>
+#include <cctype>
+#include <filesystem>
 
-#include "create_page.h"
 #include "file_type.h"
-#include "jpeg.h"
 
-paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
-                                         double page_x_mm, double page_y_mm,
-                                         double img_x_mm, double img_y_mm,
-                                         int quality)
+namespace {
+inline bool ends_in(const std::string& s, const std::string& t)
 {
-  return empdfer::jpeg_page(input_file, page_x_mm, page_y_mm, img_x_mm,
-                            img_y_mm, quality);
+    return std::string::npos != s.find(t, s.size() - t.size());
+}
+} // namespace
+
+empdfer::FileType empdfer::file_type(const std::string& file_path)
+{
+    // Get rid of the folders in the path, keep only the file name.
+    std::string name = std::filesystem::path(file_path).filename().string();
+
+    // Make it lowercase (just to check extension).
+    std::transform(file_path.begin(), file_path.end(), name.begin(), 
+                   [](unsigned char c){ return std::tolower(c); });
+
+    if (ends_in(name, ".jpg") || ends_in(name, ".jpeg"))
+        return empdfer::JPEG;
+    else return empdfer::UNKNOWN;
 }
