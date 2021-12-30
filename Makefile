@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
-# Do NOT use -ansi in CXXPARAMS when using valgrind. It is also better
-# to use -O0 in OPTIMIZATION in this case.
+# When using valgrind, use -g in CXXPARAMS but do NOT use -ansi. It is also
+# better to use -O0 in OPTIMIZATION in this case.
 
 PDF_LIB=paddlefish
 PDF_LIB_PATH=../../paddlefish/build
 PDF_LIB_INCLUDE_PATH=../../paddlefish/build
 EXT_LIBS_DEFS=-DPADDLEFISH_USE_ZLIB
-CXXPARAMS=-g ${EXT_LIBS_DEFS} -Wall -pedantic -std=c++17 #-ansi
+CXXPARAMS=-ansi ${EXT_LIBS_DEFS} -Wall -pedantic -std=c++17
 OPTIMIZATION=-O2
 EXT_LIBS=-lm -lz
 
