@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Luis Peñaranda. All rights reserved.
+// Copyright (c) 2021-2022 Luis Peñaranda. All rights reserved.
 //
 // This file is part of empdfer.
 //
@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
   std::string output_file;
   std::vector<double> img_x_mm, img_y_mm;
   int quality = -1;
+  bool shrink = true;
 
   // Default page size.
   double page_x_mm = 210.;
@@ -47,6 +48,7 @@ int main(int argc, char *argv[])
         "-i, --input file   input image name\n"
         "-x, --size-x mm    horizontal size of the last specified image\n"
         "-y, --size-y mm    vertical size of the last specified image\n"
+        "-ns, --no-shrink   do not shrink the image to fit the page\n"
         "-o, --output file  output file name (if `-` or omitted, use stdout)\n"
         "-px, --page-x mm   width of the output pages (default: " << page_x_mm << ")\n"
         "-py, --page-y mm   height of the output pages (default: " << page_y_mm << ")\n"
@@ -89,6 +91,11 @@ int main(int argc, char *argv[])
       page_y_mm = atof(argv[++i]);
     }
 
+    if (!strcmp(argv[i], "-ns") || !strcmp(argv[i], "--no-shrink"))
+    {
+      shrink = false;
+    }
+
     if (!strcmp(argv[i], "-q") || !strcmp(argv[i], "--quality"))
     {
       quality = atoi(argv[++i]);
@@ -106,7 +113,8 @@ int main(int argc, char *argv[])
 
   for (size_t i = 0; i < input_files.size(); ++i)
     d->push_back_page(empdfer::create_page(input_files[i], page_x_mm, page_y_mm,
-                                           img_x_mm[i], img_y_mm[i], quality));
+                                           img_x_mm[i], img_y_mm[i], quality,
+                                           shrink));
 
   if (output_file.empty() || output_file == "-")
   {

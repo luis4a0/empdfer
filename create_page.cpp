@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Luis Peñaranda. All rights reserved.
+// Copyright (c) 2021-2022 Luis Peñaranda. All rights reserved.
 //
 // This file is part of empdfer.
 //
@@ -24,8 +24,8 @@
 paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
                                          double page_x_mm, double page_y_mm,
                                          double img_x_mm, double img_y_mm,
-                                         int quality)
+                                         int quality, bool shrink)
 {
   return empdfer::jpeg_page(input_file, page_x_mm, page_y_mm, img_x_mm,
-                            img_y_mm, quality);
+                            img_y_mm, quality, shrink);
 }

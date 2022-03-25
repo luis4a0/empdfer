@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Luis Peñaranda. All rights reserved.
+// Copyright (c) 2021-2022 Luis Peñaranda. All rights reserved.
 //
 // This file is part of empdfer.
 //
@@ -109,7 +109,7 @@ void empdfer::recompress_jpeg(const std::string& input_file,
 paddlefish::PagePtr empdfer::jpeg_page(const std::string& input_file,
                                        double page_x_mm, double page_y_mm,
                                        double img_x_mm, double img_y_mm,
-                                       int quality)
+                                       int quality, bool shrink)
 {
   paddlefish::PagePtr p(new paddlefish::Page());
 
@@ -150,6 +150,23 @@ paddlefish::PagePtr empdfer::jpeg_page(const std::string& input_file,
     img_x_mm = (double)cinfo.image_width * img_y_mm / cinfo.image_height;
   else
     img_y_mm = (double)cinfo.image_height * img_x_mm / cinfo.image_width;
+
+  // At this point, the image size is computed. But it can exceed the page
+  // boundary. If this is a problem, shrink the image to fit the page.
+  if (shrink)
+  {
+    if (img_x_mm > page_x_mm)
+    {
+        img_y_mm *= page_x_mm / img_x_mm;
+        img_x_mm = page_x_mm;
+    }
+
+    if (img_y_mm > page_y_mm)
+    {
+        img_x_mm *= page_y_mm / img_y_mm;
+        img_y_mm = page_y_mm;
+    }
+  }
 
   // Compute the margins needed to center the image on page.
   double margin_x_mm = (page_x_mm - img_x_mm) / 2.;
