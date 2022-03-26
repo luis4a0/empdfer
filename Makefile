@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Luis Peñaranda. All rights reserved.
+# Copyright (c) 2021-2022 Luis Peñaranda. All rights reserved.
 #
 # This file is part of empdfer.
 #
@@ -24,11 +24,11 @@ PDF_LIB_INCLUDE_PATH=../../paddlefish/build
 EXT_LIBS_DEFS=-DPADDLEFISH_USE_ZLIB
 CXXPARAMS=-ansi ${EXT_LIBS_DEFS} -Wall -pedantic -std=c++17
 OPTIMIZATION=-O2
-EXT_LIBS=-lm -lz
+EXT_LIBS=-lm -lz -ljpeg -lpng
 
 BINARY=empdfer
 
-OBJECTS=file_type.o jpeg.o create_page.o empdfer.o
+OBJECTS=file_type.o jpeg.o png_file.o create_page.o empdfer.o
 
 %.o: %.cpp
 	g++ ${CXXPARAMS} ${OPTIMIZATION} -I${PDF_LIB_INCLUDE_PATH} -c $< -o $@
@@ -36,7 +36,7 @@ OBJECTS=file_type.o jpeg.o create_page.o empdfer.o
 all: ${PDF_LIB_PATH}/lib${PDF_LIB}.a ${BINARY}
 
 empdfer: ${OBJECTS}
-	g++ ${CXXPARAMS} ${OPTIMIZATION} -L${PDF_LIB_PATH} ${OBJECTS} -l${PDF_LIB} ${EXT_LIBS} -ljpeg -o $@
+	g++ ${CXXPARAMS} ${OPTIMIZATION} -L${PDF_LIB_PATH} ${OBJECTS} -l${PDF_LIB} ${EXT_LIBS} -o $@
 
 clean:
 	rm -f *.o ${BINARY}

@@ -15,22 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EMPDFER_FILE_TYPE_H
-#define EMPDFER_FILE_TYPE_H
+#ifndef EMPDFER_PNG_H
+#define EMPDFER_PNG_H
 
 #include <string>
 
+#include <document.h>
+
 namespace empdfer {
 
-enum FileType
-{
-    JPEG,
-    PNG,
-    UNKNOWN
-};
-
-FileType file_type(const std::string&);
-
+paddlefish::PagePtr png_page(const std::string&, double, double, double,
+                             double, int, bool shrink);
 } // namespace empdfer
 
-#endif // EMPDFER_FILE_TYPE_H
+#endif // EMPDFER_PNG_H

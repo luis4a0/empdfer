@@ -15,17 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <exception>
 #include <iostream>
 
 #include "create_page.h"
 #include "file_type.h"
 #include "jpeg.h"
+#include "png_file.h"
 
 paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
                                          double page_x_mm, double page_y_mm,
                                          double img_x_mm, double img_y_mm,
                                          int quality, bool shrink)
 {
-  return empdfer::jpeg_page(input_file, page_x_mm, page_y_mm, img_x_mm,
-                            img_y_mm, quality, shrink);
+    switch (file_type(input_file))
+    {
+        case empdfer::FileType::JPEG:
+            return empdfer::jpeg_page(input_file, page_x_mm, page_y_mm,
+                                      img_x_mm, img_y_mm, quality, shrink);
+            break;
+        case empdfer::FileType::PNG:
+            return empdfer::png_page(input_file, page_x_mm, page_y_mm,
+                                     img_x_mm, img_y_mm, quality, shrink);
+            break;
+        default:
+            throw std::runtime_error(input_file + ": Unknown file type");
+            break;
+    }
 }

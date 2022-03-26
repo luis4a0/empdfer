@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Luis Peñaranda. All rights reserved.
+// Copyright (c) 2021-2022 Luis Peñaranda. All rights reserved.
 //
 // This file is part of empdfer.
 //
@@ -39,5 +39,7 @@ empdfer::FileType empdfer::file_type(const std::string& file_path)
 
     if (ends_in(name, ".jpg") || ends_in(name, ".jpeg"))
         return empdfer::JPEG;
+    else if (ends_in(name, ".png"))
+        return empdfer::PNG;
     else return empdfer::UNKNOWN;
 }
