@@ -20,7 +20,7 @@
 
 #include "create_page.h"
 #include "file_type.h"
-#include "jpeg.h"
+#include "jpeg_file.h"
 #include "png_file.h"
 
 paddlefish::PagePtr empdfer::create_page(const std::string& input_file,

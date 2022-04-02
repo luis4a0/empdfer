@@ -16,7 +16,7 @@
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "adjust_size.h"
-#include "jpeg.h"
+#include "jpeg_file.h"
 
 #include <cstring>
 #include <filesystem>
