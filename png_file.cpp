@@ -36,7 +36,6 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
     paddlefish::PagePtr p(new paddlefish::Page());
 
     unsigned x_size, y_size;
-    //unsigned char ***image_bits;
 
     FILE *fp = fopen(input_file.c_str(), "rb");
 
@@ -80,21 +79,18 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
     y_size = png_get_image_height(png_ptr, info_ptr);
     png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
     png_byte channels = png_get_channels(png_ptr, info_ptr);
-    std::cout << "bit depth = " << (unsigned)bit_depth << std::endl;
-    std::cout << "channels = " << (unsigned)channels << std::endl;
 
     // Get color type, and convert palette to RGB if needed.
     png_byte color_type = png_get_color_type(png_ptr, info_ptr);
     if (color_type == PNG_COLOR_TYPE_PALETTE)
     {
-        std::cout << "palette to RGB" << std::endl;
         png_set_palette_to_rgb(png_ptr);
         color_type = PNG_COLOR_TYPE_RGB;
         channels = 3;
         bit_depth = 8;
     }
 
-    if (color_type & PNG_COLOR_MASK_ALPHA)
+    /*if (color_type & PNG_COLOR_MASK_ALPHA)
     {
         // TODO: combine the alpha with the RGB or gray bytes.
         std::cout << "removing alpha" << std::endl;
@@ -108,7 +104,7 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
         png_set_strip_alpha(png_ptr);
         color_type -= PNG_COLOR_MASK_ALPHA;
         channels = color_type == PNG_COLOR_TYPE_RGB ? 3 : 1;
-    }
+    }*/
 
     // Get the PNG resolution.
     unsigned res_x, res_y;
@@ -168,6 +164,7 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
 
     unsigned char *image = (unsigned char*)png_malloc(
         png_ptr, y_size * x_size * bit_depth * channels * sizeof(png_bytep));
+    unsigned char *mask = NULL;
 
     png_bytep* row_pointers = (png_bytep*)malloc(y_size * sizeof(png_bytep));
 
@@ -177,13 +174,53 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
 
     png_read_image(png_ptr, row_pointers);
 
+    // If the image has transparency, separate the actual colors from the mask.
+    if (color_type & PNG_COLOR_MASK_ALPHA)
+    {
+        unsigned color_channels = channels - 1;
+
+        unsigned char *plain = (unsigned char*)malloc(
+                y_size * x_size * bit_depth * color_channels * sizeof(png_bytep));
+
+        mask = (unsigned char*)malloc(
+                y_size * x_size * bit_depth * sizeof(unsigned char));
+
+        for (unsigned row = 0; row < y_size; ++row)
+            for (unsigned col = 0; col < x_size; ++col)
+            {
+                    unsigned offset = row * x_size + col;
+                    for (unsigned comp = 0; comp < color_channels; ++comp)
+                        plain[color_channels * offset + comp] =
+                            image[channels * offset + comp];
+                    mask[offset] = image[channels * offset + 3];
+            }
+
+        // Swap contents of plain and image.
+        unsigned char *temp = image;
+        image = plain;
+        plain = temp;
+
+        color_type -= PNG_COLOR_MASK_ALPHA;
+        channels = color_channels;
+    }
+
+    //png_read_end(NULL, NULL);
+    //png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+
     fclose(fp);
 
     // Set the page size.
     p->set_mediabox(0, 0, MILIMETERS(page_x_mm), MILIMETERS(page_y_mm));
 
-    p->add_image_bytes((unsigned char*)image,
-                       NULL,
+    /*
+    p->add_jpeg_image(compressed_file, cinfo.image_width, cinfo.image_height,
+                      MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm),
+                      MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
+                      cinfo.jpeg_color_space == JCS_GRAYSCALE ?
+                      COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
+    */
+    p->add_image_bytes(image,
+                       mask,
                        bit_depth,
                        channels,
                        x_size,
