@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "adjust_size.h"
 #include "png_file.h"
 
 #include <png.h>
@@ -144,19 +145,7 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
 
     // Shrink to fit page if needed.
     if (shrink)
-    {
-        if (img_x_mm > page_x_mm)
-        {
-            img_y_mm *= page_x_mm / img_x_mm;
-            img_x_mm = page_x_mm;
-        }
-
-        if (img_y_mm > page_y_mm)
-        {
-            img_x_mm *= page_y_mm / img_y_mm;
-            img_y_mm = page_y_mm;
-        }
-    }
+        empdfer::shrink(&img_x_mm, &img_y_mm, page_x_mm, page_y_mm);
 
     // Compute the margins needed to center the image on page.
     double margin_x_mm = (page_x_mm - img_x_mm) / 2.;

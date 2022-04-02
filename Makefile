@@ -28,7 +28,7 @@ EXT_LIBS=-lm -lz -ljpeg -lpng
 
 BINARY=empdfer
 
-OBJECTS=file_type.o jpeg.o png_file.o create_page.o empdfer.o
+OBJECTS=adjust_size.o create_page.o file_type.o jpeg.o png_file.o empdfer.o
 
 %.o: %.cpp
 	g++ ${CXXPARAMS} ${OPTIMIZATION} -I${PDF_LIB_INCLUDE_PATH} -c $< -o $@
