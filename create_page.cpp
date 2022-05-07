@@ -26,17 +26,20 @@
 paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
                                          double page_x_mm, double page_y_mm,
                                          double img_x_mm, double img_y_mm,
-                                         int quality, bool shrink)
+                                         int quality, double rotation,
+                                         bool shrink)
 {
     switch (file_type(input_file))
     {
         case empdfer::FileType::JPEG:
             return empdfer::jpeg_page(input_file, page_x_mm, page_y_mm,
-                                      img_x_mm, img_y_mm, quality, shrink);
+                                      img_x_mm, img_y_mm, quality, rotation,
+                                      shrink);
             break;
         case empdfer::FileType::PNG:
             return empdfer::png_page(input_file, page_x_mm, page_y_mm,
-                                     img_x_mm, img_y_mm, quality, shrink);
+                                     img_x_mm, img_y_mm, quality, rotation,
+                                     shrink);
             break;
         default:
             throw std::runtime_error(input_file + ": Unknown file type");

@@ -25,7 +25,7 @@
 namespace empdfer {
 
 paddlefish::PagePtr png_page(const std::string&, double, double, double,
-                             double, int, bool shrink);
+                             double, int, double, bool);
 } // namespace empdfer
 
 #endif // EMPDFER_PNG_FILE_H

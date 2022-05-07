@@ -15,18 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EMPDFER_ADJUST_SIZE_H
-#define EMPDFER_ADJUST_SIZE_H
+#ifndef EMPDFER_MATRIX_H
+#define EMPDFER_MATRIX_H
 
 #include <utility>
 
 namespace empdfer {
 
-void shrink(double *img_x_mm, double *img_y_mm, double page_x_mm,
-            double page_y_mm);
+void fill_matrix(double *matrix23, double img_x_mm, double img_y_mm,
+                 double page_x_mm, double page_y_mm, double rotation,
+                 bool shrink);
 
 } // namespace empdfer
 
-#endif // EMPDFER_ADJUST_SIZE_H
-
-
+#endif // EMPDFER_MATRIX_H

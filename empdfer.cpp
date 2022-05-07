@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 {
   std::vector<std::string> input_files;
   std::string output_file;
-  std::vector<double> img_x_mm, img_y_mm;
+  std::vector<double> img_x_mm, img_y_mm, rotation;
   int quality = -1;
   bool shrink = true;
 
@@ -52,7 +52,8 @@ int main(int argc, char *argv[])
         "-o, --output file  output file name (if `-` or omitted, use stdout)\n"
         "-px, --page-x mm   width of the output pages (default: " << page_x_mm << ")\n"
         "-py, --page-y mm   height of the output pages (default: " << page_y_mm << ")\n"
-        "-q, --quality int  quality of the output images (default: retain the input quality)\n"
+        "-q, --quality int  output image quality (default: retain input quality)\n"
+        "-r, --rotation deg counter-clockwise rotation of the image (default: 0)\n"
         "-h, --help         show this message\n"
         "Sizes are specified in millimeters\n";
 
@@ -64,6 +65,7 @@ int main(int argc, char *argv[])
       input_files.push_back(std::string(argv[++i]));
       img_x_mm.push_back(-1.);
       img_y_mm.push_back(-1.);
+      rotation.push_back(0.);
     }
 
     if (!strcmp(argv[i], "-o") || !strcmp(argv[i], "--output"))
@@ -100,6 +102,11 @@ int main(int argc, char *argv[])
     {
       quality = atoi(argv[++i]);
     }
+
+    if (!strcmp(argv[i], "-r") || !strcmp(argv[i], "--rotation"))
+    {
+      rotation[rotation.size() - 1] = atoi(argv[++i]);
+    }
   }
 
   if (input_files.empty())
@@ -114,7 +121,7 @@ int main(int argc, char *argv[])
   for (size_t i = 0; i < input_files.size(); ++i)
     d->push_back_page(empdfer::create_page(input_files[i], page_x_mm, page_y_mm,
                                            img_x_mm[i], img_y_mm[i], quality,
-                                           shrink));
+                                           rotation[i], shrink));
 
   if (output_file.empty() || output_file == "-")
   {

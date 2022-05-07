@@ -21,13 +21,17 @@
 #include <string>
 
 #include <document.h>
+#include <jpeglib.h>
 
 namespace empdfer {
+
+void create_jpeg(const std::string&, unsigned char*, long, long, unsigned,
+                 J_COLOR_SPACE, int);
 
 void recompress_jpeg(const std::string&, const std::string&, int);
 
 paddlefish::PagePtr jpeg_page(const std::string&, double, double, double,
-                              double, int, bool);
+                              double, int, double, bool);
 } // namespace empdfer
 
 #endif // EMPDFER_JPEG_FILE_H

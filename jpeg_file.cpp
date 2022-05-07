@@ -15,19 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "adjust_size.h"
 #include "jpeg_file.h"
+#include "matrix.h"
 
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <jerror.h>
-#include <jpeglib.h>
 
-void create_jpeg(const std::string& compressed_file, unsigned char* data,
-                 long width, long height, unsigned components,
-                 J_COLOR_SPACE color_space, int quality)
+void empdfer::create_jpeg(const std::string& compressed_file,
+                          unsigned char* data, long width, long height,
+                          unsigned components, J_COLOR_SPACE color_space,
+                          int quality)
 {
   jpeg_compress_struct cinfo;
   struct jpeg_error_mgr err;
@@ -110,7 +110,8 @@ void empdfer::recompress_jpeg(const std::string& input_file,
 paddlefish::PagePtr empdfer::jpeg_page(const std::string& input_file,
                                        double page_x_mm, double page_y_mm,
                                        double img_x_mm, double img_y_mm,
-                                       int quality, bool shrink)
+                                       int quality, double rotation,
+                                       bool shrink)
 {
   paddlefish::PagePtr p(new paddlefish::Page());
 
@@ -152,21 +153,13 @@ paddlefish::PagePtr empdfer::jpeg_page(const std::string& input_file,
   else
     img_y_mm = (double)cinfo.image_height * img_x_mm / cinfo.image_width;
 
-  // At this point, the image size is computed. But it can exceed the page
-  // boundary. If this is a problem, shrink the image to fit the page.
-  if (shrink)
-    empdfer::shrink(&img_x_mm, &img_y_mm, page_x_mm, page_y_mm);
-
-  // Compute the margins needed to center the image on page.
-  double margin_x_mm = (page_x_mm - img_x_mm) / 2.;
-  double margin_y_mm = (page_y_mm - img_y_mm) / 2.;
-
   // Set the page size.
   p->set_mediabox(0, 0, MILIMETERS(page_x_mm), MILIMETERS(page_y_mm));
 
-  // TODO: remove showing this debug information.
-  std::cerr << "jpeg_color_space=" << cinfo.jpeg_color_space <<
-    ", out_color_space=" << cinfo.out_color_space << std::endl;
+  // Compute the PDF transformation matrix for the image.
+  double matrix23[6];
+  empdfer::fill_matrix(matrix23, img_x_mm, img_y_mm, page_x_mm, page_y_mm,
+                       rotation, shrink);
 
   if (quality == -1)
   {
@@ -174,8 +167,7 @@ paddlefish::PagePtr empdfer::jpeg_page(const std::string& input_file,
     // the image is in.
       p->add_jpeg_image(input_file,
                         cinfo.image_width, cinfo.image_height,
-                        MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm),
-                        MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
+                        matrix23,
                         cinfo.jpeg_color_space == JCS_GRAYSCALE ?
                         COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
   }
@@ -187,10 +179,9 @@ paddlefish::PagePtr empdfer::jpeg_page(const std::string& input_file,
 
     empdfer::recompress_jpeg(input_file, compressed_file, quality);
 
-    // Add the resulting image
+    // Add the recompressed image.
     p->add_jpeg_image(compressed_file, cinfo.image_width, cinfo.image_height,
-                      MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm),
-                      MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
+                      matrix23,
                       cinfo.jpeg_color_space == JCS_GRAYSCALE ?
                       COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
   }

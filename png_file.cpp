@@ -15,7 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "adjust_size.h"
+#include "jpeg_file.h"
+#include "matrix.h"
 #include "png_file.h"
 
 #include <png.h>
@@ -26,13 +27,15 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 // See http://www.libpng.org/pub/png/libpng-1.2.5-manual.html#section-3 for
 // explanation on how to use libpng.
 paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
                                       double page_x_mm, double page_y_mm,
                                       double img_x_mm, double img_y_mm,
-                                      int quality, bool shrink)
+                                      int quality, double rotation,
+                                      bool shrink)
 {
     paddlefish::PagePtr p(new paddlefish::Page());
 
@@ -91,22 +94,6 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
         bit_depth = 8;
     }
 
-    /*if (color_type & PNG_COLOR_MASK_ALPHA)
-    {
-        // TODO: combine the alpha with the RGB or gray bytes.
-        std::cout << "removing alpha" << std::endl;
-
-        if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
-        {
-            std::cout << "valid" << std::endl;
-            png_set_tRNS_to_alpha(png_ptr);
-        }
-
-        png_set_strip_alpha(png_ptr);
-        color_type -= PNG_COLOR_MASK_ALPHA;
-        channels = color_type == PNG_COLOR_TYPE_RGB ? 3 : 1;
-    }*/
-
     // Get the PNG resolution.
     unsigned res_x, res_y;
     int unit_type;
@@ -143,13 +130,10 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
     else
         img_y_mm = (double)y_size * img_x_mm / x_size;
 
-    // Shrink to fit page if needed.
-    if (shrink)
-        empdfer::shrink(&img_x_mm, &img_y_mm, page_x_mm, page_y_mm);
-
-    // Compute the margins needed to center the image on page.
-    double margin_x_mm = (page_x_mm - img_x_mm) / 2.;
-    double margin_y_mm = (page_y_mm - img_y_mm) / 2.;
+    // Compute the PDF transformation matrix for the image.
+    double matrix23[6];
+    empdfer::fill_matrix(matrix23, img_x_mm, img_y_mm, page_x_mm, page_y_mm,
+                         rotation, shrink);
 
     unsigned char *image = (unsigned char*)png_malloc(
         png_ptr, y_size * x_size * bit_depth * channels * sizeof(png_bytep));
@@ -166,6 +150,7 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
     // If the image has transparency, separate the actual colors from the mask.
     if (color_type & PNG_COLOR_MASK_ALPHA)
     {
+        std::cerr << "handling aplha" << std::endl;
         unsigned color_channels = channels - 1;
 
         unsigned char *plain = (unsigned char*)malloc(
@@ -189,6 +174,7 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
         image = plain;
         plain = temp;
 
+        // TODO: do this only if quality==-1, then fix embedding in the page.
         color_type -= PNG_COLOR_MASK_ALPHA;
         channels = color_channels;
     }
@@ -201,27 +187,56 @@ paddlefish::PagePtr empdfer::png_page(const std::string& input_file,
     // Set the page size.
     p->set_mediabox(0, 0, MILIMETERS(page_x_mm), MILIMETERS(page_y_mm));
 
-    /*
-    p->add_jpeg_image(compressed_file, cinfo.image_width, cinfo.image_height,
-                      MILIMETERS(margin_x_mm), MILIMETERS(margin_y_mm),
-                      MILIMETERS(img_x_mm), MILIMETERS(img_y_mm),
-                      cinfo.jpeg_color_space == JCS_GRAYSCALE ?
-                      COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB);
-    */
-    p->add_image_bytes(image,
-                       mask,
-                       bit_depth,
-                       channels,
-                       x_size,
-                       y_size,
-                       MILIMETERS(margin_x_mm),
-                       MILIMETERS(margin_y_mm),
-                       MILIMETERS(img_x_mm),
-                       MILIMETERS(img_y_mm),
-                       (color_type == PNG_COLOR_TYPE_GRAY ||
-                        color_type == PNG_COLOR_TYPE_GRAY_ALPHA) ?
-                       COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB,
-                       true);
+    if (quality == -1)
+    {
+        p->add_image_bytes(image,
+                mask,
+                bit_depth,
+                channels,
+                x_size,
+                y_size,
+                matrix23,
+                (color_type == PNG_COLOR_TYPE_GRAY ||
+                 color_type == PNG_COLOR_TYPE_GRAY_ALPHA) ?
+                COLORSPACE_DEVICEGRAY : COLORSPACE_DEVICERGB,
+                true);
+    }
+    else
+    {
+        // If the user wants to compress, we need first to combine the background
+        // and the image using the alpha channel, if there is one.
+        if (color_type & PNG_COLOR_MASK_ALPHA)
+        {
+            std::cerr << "alpha channel\n";
+            /*
+               {
+            // TODO: combine the alpha with the RGB or gray bytes.
+            std::cout << "removing alpha" << std::endl;
+
+            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+            {
+            std::cout << "valid" << std::endl;
+            png_set_tRNS_to_alpha(png_ptr);
+            }
+
+            png_set_strip_alpha(png_ptr);
+            color_type -= PNG_COLOR_MASK_ALPHA;
+            channels = color_type == PNG_COLOR_TYPE_RGB ? 3 : 1;
+            }*/
+        }
+
+        std::string compressed_file =
+            std::filesystem::temp_directory_path().string() + "/" + input_file +
+            "_compressed_" + std::to_string(quality);
+
+        empdfer::create_jpeg(compressed_file, image, x_size, y_size, channels,
+                channels == 1 ? JCS_GRAYSCALE : JCS_RGB, quality);
+
+        p->add_jpeg_image(compressed_file, x_size, y_size,
+                matrix23,
+                channels == 1 ? COLORSPACE_DEVICEGRAY :
+                COLORSPACE_DEVICERGB);
+    }
 
     return p;
 }

@@ -25,7 +25,7 @@
 namespace empdfer {
 
 paddlefish::PagePtr create_page(const std::string&, double, double, double,
-                                double, int, bool);
+                                double, int, double, bool);
 
 } // namespace empdfer
 
