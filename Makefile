@@ -33,7 +33,7 @@ OBJECTS=create_page.o file_type.o jpeg_file.o matrix.o png_file.o empdfer.o
 %.o: %.cpp
 	g++ ${CXXPARAMS} ${OPTIMIZATION} -I${PDF_LIB_INCLUDE_PATH} -c $< -o $@
 
-all: ${PDF_LIB_PATH}/lib${PDF_LIB}.a ${BINARY}
+all: ${BINARY}
 
 empdfer: ${OBJECTS}
 	g++ ${CXXPARAMS} ${OPTIMIZATION} -L${PDF_LIB_PATH} ${OBJECTS} -l${PDF_LIB} ${EXT_LIBS} -o $@
