@@ -16,9 +16,9 @@
 # along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
 name: empdfer # you probably want to 'snapcraft register <name>'
-base: core20 # the base snap is the execution environment for this snap
-version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
-summary: Embed images into a PDf # 79 char long summary
+base: core22 # the base snap is the execution environment for this snap
+version: '0.9.0' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Embed images into a PDF # 79 char long summary
 description: |
   Empdfer is a command-line tool which embeds graphic images into a PDF.
 
@@ -28,14 +28,14 @@ confinement: strict # use 'strict' once you have the right plugs and slots
 parts:
   paddlefish:
     source: https://github.com/luis4a0/paddlefish.git
-    plugin: make
-    make-parameters:
-    - libpaddlefish.a
-    organize:
-      libpaddlefish.a: lib/
+    plugin: cmake
+    cmake-parameters:
+    - -DCMAKE_BUILD_TYPE=Release
+    - -DCMAKE_INSTALL_PREFIX=/usr
+    - -DPADDLEFISH_USE_ZLIB=ON
+    - -DPADDLEFISH_BUILD_EXAMPLES=OFF
     build-packages:
     - g++-10
-    - make
     - zlib1g-dev
     stage-packages:
     - zlib1g
@@ -54,7 +54,6 @@ parts:
     source: .
     build-packages:
     - g++-10
-    - make
     - zlib1g-dev
     - libjpeg-dev
     - libpng-dev
