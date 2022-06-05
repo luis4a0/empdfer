@@ -30,12 +30,13 @@ parts:
     source: https://github.com/luis4a0/paddlefish.git
     plugin: cmake
     cmake-parameters:
+    - -DCMAKE_CXX_COMPILER=/usr/bin/g++-12
     - -DCMAKE_BUILD_TYPE=Release
     - -DCMAKE_INSTALL_PREFIX=/usr
     - -DPADDLEFISH_USE_ZLIB=ON
     - -DPADDLEFISH_BUILD_EXAMPLES=OFF
     build-packages:
-    - g++-10
+    - g++-12
     - zlib1g-dev
     stage-packages:
     - zlib1g
@@ -53,7 +54,7 @@ parts:
     - paddlefish
     source: .
     build-packages:
-    - g++-10
+    - g++-12
     - zlib1g-dev
     - libjpeg-dev
     - libpng-dev
