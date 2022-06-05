@@ -19,11 +19,12 @@
 # better to use -O0 in OPTIMIZATION in this case.
 
 PDF_LIB=paddlefish
-PDF_LIB_PATH=../../paddlefish/build
-PDF_LIB_INCLUDE_PATH=../../paddlefish/build
+PDF_LIB_PATH=/root/parts/paddlefish/install/usr/lib/x86_64-linux-gnu/
+PDF_LIB_INCLUDE_PATH=/root/parts/paddlefish/install/usr/include/
 EXT_LIBS_DEFS=-DPADDLEFISH_USE_ZLIB
+CXX=g++-12
 CXXPARAMS=-ansi ${EXT_LIBS_DEFS} -Wall -pedantic -std=c++17
-OPTIMIZATION=-O2
+OPTIMIZATION=-O3 -DNDEBUG
 EXT_LIBS=-lm -lz -ljpeg -lpng
 
 BINARY=empdfer
@@ -31,12 +32,12 @@ BINARY=empdfer
 OBJECTS=create_page.o file_type.o jpeg_file.o matrix.o png_file.o empdfer.o
 
 %.o: %.cpp
-	g++ ${CXXPARAMS} ${OPTIMIZATION} -I${PDF_LIB_INCLUDE_PATH} -c $< -o $@
+	${CXX} ${CXXPARAMS} ${OPTIMIZATION} -I${PDF_LIB_INCLUDE_PATH} -c $< -o $@
 
 all: ${BINARY}
 
 empdfer: ${OBJECTS}
-	g++ ${CXXPARAMS} ${OPTIMIZATION} -L${PDF_LIB_PATH} ${OBJECTS} -l${PDF_LIB} ${EXT_LIBS} -o $@
+	${CXX} ${CXXPARAMS} ${OPTIMIZATION} -L${PDF_LIB_PATH} ${OBJECTS} -l${PDF_LIB} ${EXT_LIBS} -o $@
 
 clean:
 	rm -f *.o ${BINARY}
