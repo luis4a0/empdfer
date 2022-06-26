@@ -17,7 +17,7 @@
 
 #include "matrix.h"
 
-#include <document.h>
+#include <paddlefish/paddlefish.h>
 
 #include <cmath>
 

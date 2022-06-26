@@ -20,8 +20,8 @@
 
 #include <string>
 
-#include <document.h>
 #include <jpeglib.h>
+#include <paddlefish/paddlefish.h>
 
 namespace empdfer {
 

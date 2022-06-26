@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include <document.h>
+#include <paddlefish/paddlefish.h>
 
 #include "create_page.h"
 
