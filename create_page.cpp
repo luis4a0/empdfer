@@ -21,7 +21,9 @@
 #include "create_page.h"
 #include "file_type.h"
 #include "jpeg_file.h"
+#ifdef EMPDFER_USE_PNG
 #include "png_file.h"
+#endif
 
 paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
                                          double page_x_mm, double page_y_mm,
@@ -37,9 +39,14 @@ paddlefish::PagePtr empdfer::create_page(const std::string& input_file,
                                       shrink);
             break;
         case empdfer::FileType::PNG:
+#ifdef EMPDFER_USE_PNG
             return empdfer::png_page(input_file, page_x_mm, page_y_mm,
                                      img_x_mm, img_y_mm, quality, rotation,
                                      shrink);
+#else
+            throw std::runtime_error(input_file +
+                ": PNG is not supported, compile with libpng");
+#endif
             break;
         default:
             throw std::runtime_error(input_file + ": Unknown file type");
