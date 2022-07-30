@@ -16,6 +16,7 @@
 // along with empdfer.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -38,13 +39,15 @@ int main(int argc, char *argv[])
   double page_x_mm = 210.;
   double page_y_mm = 297.;
 
+  auto filename = std::filesystem::path(argv[0]).filename().string();
+
   for (auto i = 1; i < argc; ++i)
   {
     if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
     {
       std::cerr <<
-        argv[0] << " embeds jpeg files on a PDF document.\n"
-        "usage: " << argv[0] << " options\nwhere options are zero or more of:\n"
+        filename << " embeds jpeg files on a PDF document.\n"
+        "usage: " << filename << " options\nwhere options are zero or more of:\n"
         "-i, --input file   input image name\n"
         "-x, --size-x mm    output width of the last specified image\n"
         "-y, --size-y mm    output height of the last specified image\n"
@@ -54,10 +57,19 @@ int main(int argc, char *argv[])
         "-py, --page-y mm   height of the output pages (default: " << page_y_mm << ")\n"
         "-q, --quality int  output image quality (default: retain input quality)\n"
         "-r, --rotation deg counter-clockwise rotation of the image (default: 0)\n"
-        "-h, --help         show this message\n"
+        "-h, --help         show this message and exit\n"
+        "-v, --version      show version information and exit\n"
         "Sizes are specified in millimeters\n";
 
       return -2;
+    }
+
+    if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version"))
+    {
+      std::cerr << "empdfer " << EMPDFER_VERSION_MAJOR << "." <<
+        EMPDFER_VERSION_MINOR << "." << EMPDFER_VERSION_PATCH << std::endl;
+
+      return -3;
     }
 
     if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--input"))
@@ -111,9 +123,9 @@ int main(int argc, char *argv[])
 
   if (input_files.empty())
   {
-    std::cerr << "Not enough arguments, use \"" << argv[0] << " --help\"." << std::endl;
+    std::cerr << "Not enough arguments, use \"" << filename << " --help\"." << std::endl;
 
-    return -3;
+    return -4;
   }
 
   paddlefish::DocumentPtr d(new paddlefish::Document());
@@ -136,3 +148,5 @@ int main(int argc, char *argv[])
 
   return 0;
 }
+
+// vim: ts=2:sw=2:expandtab
