@@ -59,13 +59,13 @@ endif()
 
 include_directories(include ${CMAKE_SOURCE_DIR}/include)
 
-if(APPLE)
+if(UNIX)
     set(EMPDFER_RPATH "${PADDLEFISH_LIBRARY_PATH};${JPEG_LIBRARY_PATH}")
     if(EMPDFER_USE_PNG)
         set(EMPDFER_RPATH "${EMPDFER_RPATH};${PNG_LIBRARY_PATH}")
     endif(EMPDFER_USE_PNG)
     set_property(TARGET empdfer PROPERTY INSTALL_RPATH ${EMPDFER_RPATH})
-endif(APPLE)
+endif(UNIX)
 
 include(GNUInstallDirs)
 install(TARGETS empdfer DESTINATION bin)
