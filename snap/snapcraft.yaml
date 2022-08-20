@@ -41,25 +41,22 @@ parts:
     stage-packages:
     - zlib1g
   empdfer:
-    plugin: make
-    make-parameters:
-    - empdfer
-    override-build: |
-      make
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      cp empdfer $SNAPCRAFT_PART_INSTALL/bin
-    organize:
-      empdfer: bin/
     after:
     - paddlefish
+    plugin: cmake
+    cmake-parameters:
+    - -DCMAKE_CXX_COMPILER=/usr/bin/g++-12
+    - -DCMAKE_BUILD_TYPE=Release
+    - -DCMAKE_INSTALL_PREFIX=/
+    - -DPADDLEFISH_INCLUDE_DIR=/root/parts/paddlefish/install/usr/include
+    - -DPADDLEFISH_LIBRARY_RELEASE=/root/parts/paddlefish/install/usr/lib/x86_64-linux-gnu/libpaddlefish.so
+    - -DEMPDFER_USE_PNG=ON
     source: .
     build-packages:
     - g++-12
-    - zlib1g-dev
     - libjpeg-dev
     - libpng-dev
     stage-packages:
-    - zlib1g
     - libjpeg8
     - libpng16-16
 
