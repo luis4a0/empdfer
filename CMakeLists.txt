@@ -7,9 +7,9 @@ project(empdfer
 
 option(EMPDFER_USE_PNG "Use libpng" ON)
 
-add_compile_options(-DEMPDFER_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
-add_compile_options(-DEMPDFER_VERSION_MINOR=${PROJECT_VERSION_MINOR})
-add_compile_options(-DEMPDFER_VERSION_PATCH=${PROJECT_VERSION_PATCH})
+add_compile_definitions(EMPDFER_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
+add_compile_definitions(EMPDFER_VERSION_MINOR=${PROJECT_VERSION_MINOR})
+add_compile_definitions(EMPDFER_VERSION_PATCH=${PROJECT_VERSION_PATCH})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
@@ -35,7 +35,7 @@ cmake_path(GET JPEG_LIBRARY_RELEASE PARENT_PATH JPEG_LIBRARY_PATH)
 
 if(EMPDFER_USE_PNG)
     find_package(PNG REQUIRED)
-    add_definitions(-DEMPDFER_USE_PNG)
+    add_compile_definitions(EMPDFER_USE_PNG)
     target_include_directories(empdfer PRIVATE ${PNG_INCLUDE_DIRS})
     target_link_libraries(empdfer ${PNG_LIBRARY_RELEASE})
     cmake_path(GET PNG_LIBRARY_RELEASE PARENT_PATH PNG_LIBRARY_PATH)
