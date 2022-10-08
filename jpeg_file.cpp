@@ -84,7 +84,7 @@ void empdfer::recompress_jpeg(const std::string& input_file,
   }
 
   jpeg_stdio_src(&dinfo, infile);
-  jpeg_read_header(&dinfo, 0);
+  jpeg_read_header(&dinfo, (boolean)0);
   
   jpeg_start_decompress(&dinfo);
 
@@ -131,7 +131,7 @@ paddlefish::PagePtr empdfer::jpeg_page(const std::string& input_file,
   }
 
   jpeg_stdio_src(&cinfo, infile);
-  jpeg_read_header(&cinfo, 0);
+  jpeg_read_header(&cinfo, (boolean)0);
   fclose(infile);
 
   // Done with libjpeg.
