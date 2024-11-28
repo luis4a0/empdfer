@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 Luis Peñaranda. All rights reserved.
+// Copyright (c) 2021-2023 Luis Peñaranda. All rights reserved.
 //
 // This file is part of empdfer.
 //
@@ -26,6 +26,7 @@
 #include <paddlefish/paddlefish.h>
 
 #include "create_page.h"
+#include "version.h"
 
 int main(int argc, char *argv[])
 {
@@ -66,8 +67,7 @@ int main(int argc, char *argv[])
 
     if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version"))
     {
-      std::cerr << "empdfer " << EMPDFER_VERSION_MAJOR << "." <<
-        EMPDFER_VERSION_MINOR << "." << EMPDFER_VERSION_PATCH << std::endl;
+      std::cerr << empdfer::version() << std::endl;
 
       return -3;
     }

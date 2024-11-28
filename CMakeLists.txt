@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Luis Peñaranda. All rights reserved.
+# Copyright (c) 2022-2023 Luis Peñaranda. All rights reserved.
 #
 # This file is part of empdfer.
 #
@@ -30,7 +30,7 @@ add_compile_definitions(EMPDFER_VERSION_PATCH=${PROJECT_VERSION_PATCH})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-set(EMPDFER_SOURCES create_page.cpp file_type.cpp matrix.cpp empdfer.cpp jpeg_file.cpp)
+set(EMPDFER_SOURCES create_page.cpp file_type.cpp matrix.cpp empdfer.cpp jpeg_file.cpp version.cpp)
 
 if(EMPDFER_USE_PNG)
     set(EMPDFER_SOURCES ${EMPDFER_SOURCES} png_file.cpp)
